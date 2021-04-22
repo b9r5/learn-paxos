@@ -32,8 +32,8 @@ func newAcceptor(id int, input <-chan message) *acceptor {
 
 // run is a translation of the acceptor algorithm for Classic Paxos.
 func (a *acceptor) run() {
-	promisedEpoch := nilEpoch
-	acceptedEpoch := nilEpoch
+	var promisedEpoch Epoch
+	var acceptedEpoch Epoch
 	acceptedValue := ""
 
 	for {
@@ -44,7 +44,7 @@ func (a *acceptor) run() {
 		switch msg := m.(type) {
 		case prepare:
 			epoch := msg.epoch
-			if promisedEpoch.nil() || epoch.cmp(promisedEpoch) >= 0 {
+			if promisedEpoch.Nil() || epoch.Cmp(promisedEpoch) >= 0 {
 				promisedEpoch = epoch
 				msg.replyTo <- promise{acceptorID: a.id, epoch: epoch,
 					acceptedEpoch: acceptedEpoch, acceptedValue: acceptedValue}
@@ -52,7 +52,7 @@ func (a *acceptor) run() {
 		case propose:
 			epoch := msg.epoch
 			value := msg.value
-			if promisedEpoch.nil() || epoch.cmp(promisedEpoch) >= 0 {
+			if promisedEpoch.Nil() || epoch.Cmp(promisedEpoch) >= 0 {
 				promisedEpoch = epoch
 				acceptedValue, acceptedEpoch = value, epoch
 				msg.replyTo <- accept{acceptorID: a.id, epoch: epoch}

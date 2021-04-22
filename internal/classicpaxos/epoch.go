@@ -19,7 +19,7 @@ import (
 	"math/big"
 )
 
-// epoch is used to order proposals in Classic Paxos. The algorithm requires the
+// Epoch is used to order proposals in Classic Paxos. The algorithm requires the
 // set of epochs be infinite and totally ordered. The epochs that may be used
 // by different proposers must be distinct. Finally, no proposer may re-use in
 // phase 1 any epoch that it has already used.
@@ -31,52 +31,46 @@ import (
 // A typical Paxos implementation would use a 32- or 64-bit integer instead of a
 // big.Int. To sidestep the small complexities of overflow, we use a big.Int
 // instead.
-type epoch struct {
+type Epoch struct {
 	i          *big.Int
 	nProposers int // total number of proposers
 }
 
 // newEpoch returns the initial epoch for the proposer numbered proposerID.
 // nProposers is the number of proposers.
-func newEpoch(proposerID, nProposers int) epoch {
-	return epoch{
+func newEpoch(proposerID, nProposers int) Epoch {
+	return Epoch{
 		i:          big.NewInt(int64(proposerID)),
 		nProposers: nProposers,
 	}
 }
 
-// next returns the next epoch, equal to e + e.proposers.
-func (e epoch) next() epoch {
-	return epoch{
+// Next returns the next epoch, equal to e + e.proposers.
+func (e Epoch) Next() Epoch {
+	return Epoch{
 		i:          e.i.Add(e.i, big.NewInt(int64(e.nProposers))),
 		nProposers: e.nProposers,
 	}
 }
 
-// nil returns true if and only if e is a nil epoch.
-func (e epoch) nil() bool {
-	return e.i == nil
+// Nil returns true if and only if e is the zero epoch.
+func (e Epoch) Nil() bool {
+	return e == Epoch{}
 }
 
-// cmp compares e and f and returns:
+// Cmp compares e and f and returns:
 //
 //   -1 if e <  f
 //    0 if e == f
 //   +1 if e >  f
-func (e epoch) cmp(f epoch) int {
+func (e Epoch) Cmp(f Epoch) int {
 	return e.i.Cmp(f.i)
 }
 
 // String returns the string version of an epoch.
-func (e epoch) String() string {
-	if e.nil() {
+func (e Epoch) String() string {
+	if e.Nil() {
 		return "nil"
 	}
 	return fmt.Sprintf("%s", e.i)
-}
-
-// nilEpoch is a nil epoch.
-var nilEpoch = epoch{
-	i:          nil,
-	nProposers: 0,
 }

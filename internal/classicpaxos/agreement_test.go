@@ -23,8 +23,8 @@ import (
 // variety of numbers of proposers and acceptors; and with either no message
 // loss and reordering, or a moderate amount of message loss and reordering.
 func TestAgreement(t *testing.T) {
-	pt := 100*time.Millisecond // proposer timeout
-	ct := 10*time.Millisecond  // channel timeout
+	pt := 100 * time.Millisecond // proposer timeout
+	ct := 10 * time.Millisecond  // channel timeout
 
 	configs := []Config{
 		// no message loss or reordering:

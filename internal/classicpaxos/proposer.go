@@ -55,21 +55,21 @@ func newProposer(id, nProposers int,
 // run is a translation of the proposer algorithm for Classic Paxos. It returns
 // the agreed value.
 func (p *proposer) run() string {
-	var epoch epoch
+	var epoch Epoch
 
 	candidateValue := fmt.Sprintf("v%d", p.id)
 
 	for {
 		var value = ""                          // current proposal value
-		maxEpoch := nilEpoch                    // maximum epoch received in phase 1
+		var maxEpoch Epoch                      // maximum epoch received in phase 1
 		promisedAcceptors := make(map[int]bool) // keys are acceptors that have promised
 		acceptedAcceptors := make(map[int]bool) // keys are acceptors that have accepted
 
 		// select and set the epoch
-		if epoch.nil() {
+		if epoch.Nil() {
 			epoch = newEpoch(p.id, p.nProposers)
 		} else {
-			epoch = epoch.next()
+			epoch = epoch.Next()
 		}
 
 		for _, a := range p.acceptors {
@@ -85,8 +85,8 @@ func (p *proposer) run() string {
 
 				if promise, ok := msg.(promise); ok {
 					promisedAcceptors[promise.acceptorID] = true
-					if !promise.acceptedEpoch.nil() &&
-						(maxEpoch.nil() || promise.acceptedEpoch.cmp(maxEpoch) > 0) {
+					if !promise.acceptedEpoch.Nil() &&
+						(maxEpoch.Nil() || promise.acceptedEpoch.Cmp(maxEpoch) > 0) {
 
 						// (maxEpoch, value) is the greatest proposal received
 						maxEpoch = promise.acceptedEpoch
@@ -118,7 +118,7 @@ func (p *proposer) run() string {
 			case msg := <-p.input:
 				fmt.Printf("proposer %d received message %s\n", p.id, msg)
 
-				if accept, ok := msg.(accept); ok && epoch.cmp(accept.epoch) == 0 {
+				if accept, ok := msg.(accept); ok && epoch.Cmp(accept.epoch) == 0 {
 					acceptedAcceptors[accept.acceptorID] = true
 				}
 			case <-time.After(p.timeout):

@@ -20,7 +20,7 @@ type message interface{}
 
 // prepare is the message sent by the proposer in phase 1 of Classic Paxos.
 type prepare struct {
-	epoch      epoch
+	epoch      Epoch
 	proposerID int
 	replyTo    chan<- message
 }
@@ -33,7 +33,7 @@ func (p prepare) String() string {
 
 // promise is the message sent by the acceptor in phase 1 of Classic Paxos.
 type promise struct {
-	epoch, acceptedEpoch epoch
+	epoch, acceptedEpoch Epoch
 	acceptedValue        string
 	acceptorID           int
 }
@@ -53,7 +53,7 @@ func (p promise) String() string {
 
 // propose is the message sent by the proposer in phase 2 of Classic Paxos.
 type propose struct {
-	epoch      epoch
+	epoch      Epoch
 	value      string
 	proposerID int
 	replyTo    chan<- message
@@ -67,7 +67,7 @@ func (p propose) String() string {
 
 // accept is the message sent by the acceptor in phase 2 of Classic Paxos.
 type accept struct {
-	epoch      epoch
+	epoch      Epoch
 	acceptorID int
 }
 
